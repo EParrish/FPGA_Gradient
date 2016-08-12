@@ -33,7 +33,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity SobelFilter is
 port(	clk, reset:	in STD_Logic;
 		--in_array	:	in array(8 downto 0) of integer;
-		in_one 	:	in std_logic_vector(0 to 2);
+		--in_one 	:	in std_logic_vector(0 to 2);
+		in11, in12, in13, in21, in22, in23, in31, in32, in33  :    in std_logic_vector(2 downto 0);
 		out_value	:	out integer
 		--out_one	:	out std_logic_vector(0 to 2)
 );
@@ -44,13 +45,23 @@ architecture Behavioral of SobelFilter is
 type	mat is array(2 downto 0, 2 downto 0) of integer;
 
 variable energyMatrix	:	mat;
+variable gradientMatrix :   mat;
 
-energyMatrix := (
-	(in_array(0), in_array(1), in_array(2)),
-	(in_array(3), in_array(4), in_array(5)),
-	(in_array(6), in_array(7), in_array(8))
-);
 begin
+
+energyMatrix <= (
+	(in11, in12, in13),
+    (in21, in22, in23),
+    (in31, in32, in33)
+);
+
+gradientMatrix <= (
+    (not(in11)+"001", not(in12 srl 1)+"001", not(in13)+"001"),
+    (0, 0, 0),
+    (in31, in32 srl 1, in33)
+);
+
+
 
 --variable energyValues is std_logic_vector(0 to 32, 0 to 32);
 --variable yfilter is std_logic_vector(0 to 2, 0 to 2);
