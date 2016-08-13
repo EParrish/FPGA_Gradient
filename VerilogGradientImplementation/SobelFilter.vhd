@@ -35,7 +35,8 @@ port(	clk, reset:	in STD_Logic;
 		--in_array	:	in array(8 downto 0) of integer;
 		--in_one 	:	in std_logic_vector(0 to 2);
 		in11, in12, in13, in21, in22, in23, in31, in32, in33  :    in std_logic_vector(2 downto 0);
-		out_value	:	out integer
+		output    :   out std_logic_vector(2 downto 0);
+		--out_value	:	out integer
 		--out_one	:	out std_logic_vector(0 to 2)
 );
 end SobelFilter;
@@ -44,8 +45,15 @@ architecture Behavioral of SobelFilter is
 
 type	mat is array(2 downto 0, 2 downto 0) of integer;
 
-variable energyMatrix	:	mat;
-variable gradientMatrix :   mat;
+variable energyMatrix	    :	mat;
+variable gradientYMatrix    :   mat;
+variable gradientXMatrix    :   mat;
+variable Gx                 :   std_logic_vector(2 downto 0) := "000";
+variable Gy                 :   std_logic_vector(2 downto 0) := "000";
+variable GxInt              :   integer := 0;
+variable GyInt              :   integer := 0;
+variable Gtemp              :   integer := 0;
+variable G                  :   integer := 0;
 
 begin
 
@@ -55,15 +63,33 @@ energyMatrix <= (
     (in31, in32, in33)
 );
 
-gradientMatrix <= (
-    (not(in11)+"001", not(in12 srl 1)+"001", not(in13)+"001"),
+gradientYMatrix <= (
+    (not(in11)+"001", not(in12 sll 1)+"001", not(in13)+"001"),
     (0, 0, 0),
-    (in31, in32 srl 1, in33)
+    (in31, in32 sll 1, in33)
 );
 
+gradientXMatrix <= (
+    (not(in11)+"001", 0, in13),
+    (not(in21 sll 1)+"001", 0, in23),
+    (not(in31)+"001", 0, in33)
+);
 
+for i in 0 to 2 loop
+begin
+    for j in 0 to 2 loop
+    begin
+        Gx := Gx + gradientXMatrix(i,j);
+        Gy := Gy + gradientYMatrix(i,j);
+    end loop;
+end loop;
 
---variable energyValues is std_logic_vector(0 to 32, 0 to 32);
+GxInt := to_integer(signed(Gx));
+GyInt := to_integer(signed(Gy));
+
+Gtemp := GxInt*GxInt + GyInt*GyInt
+
+output  <= std_logic_vector(to_unsigned(Gtemp, 3)) srl 2;--variable energyValues is std_logic_vector(0 to 32, 0 to 32);
 --variable yfilter is std_logic_vector(0 to 2, 0 to 2);
 --yfilter(0,0) := -1;
 --yfilter(1,0) := -2;
