@@ -60,19 +60,20 @@ begin
     variable GyInt              :   integer := 0;
     variable Gtemp              :   integer := 0;
     variable G                  :   integer := 0;
+    variable outputtemp         :   std_logic_vector(2 downto 0) := "000";
     
     begin
  
         gradientYMatrix := (
-            (not(in11)+"001", not(in12 sll 1)+"001", not(in13)+"001"),
-            (0, 0, 0),
-            (in31, in32 sll 1, in33)
+            (not(in11)+"001", not(in12(1 downto 0) & "0")+"001", not(in13)+"001"),
+            ("000", "000", "000"),
+            (in31, in32(1 downto 0) & "0", in33)
         );
     
         gradientXMatrix := (
-            (not(in11)+"001", 0, in13),
-            (not(in21 sll 1)+"001", 0, in23),
-            (not(in31)+"001", 0, in33)
+            (not(in11)+"001", "000", in13),
+            (not(in21(1 downto 0) & "0")+"001", "000", in23(1 downto 0) & "0"),
+            (not(in31)+"001", "000", in33)
         );
     
         if rising_edge(clk) then
@@ -89,10 +90,10 @@ begin
         GyInt := to_integer(signed(Gy));
         
         Gtemp := GxInt*GxInt + GyInt*GyInt;
-        output  <= std_logic_vector(to_unsigned(Gtemp, 3)) srl 2; --if testbed failes then maybe move this outside process
-    
-        variable energyValues is std_logic_vector(0 to 32, 0 to 32);
-        variable yfilter is std_logic_vector(0 to 2, 0 to 2);
+        outputtemp  := std_logic_vector(to_unsigned(Gtemp, 3)); --if testbed failes then maybe move this outside process
+        output <= "00" & outputtemp(0 downto 0);
+        --variable energyValues is std_logic_vector(0 to 32, 0 to 32);
+        --variable yfilter is std_logic_vector(0 to 2, 0 to 2);
 
     end process;
 end architecture;
