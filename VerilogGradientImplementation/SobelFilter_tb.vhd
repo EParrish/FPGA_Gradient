@@ -35,23 +35,23 @@ entity SobelFilter_tb is
 --  Port ( );
 end SobelFilter_tb;
 
-architecture Behavioral of SobelFilter_tb is
+architecture Behavioral of SobelFilter_tb
 
-    component SobelFilter is
+    component SobelFilter
         generic(n_bits  :   integer := 8);
         
         port(   clk, reset :   in STD_Logic; --Using clk, might need reset to reset values? not sure
                 in11, in12, in13, in21, in22, in23, in31, in32, in33  :   in std_logic_vector(n_bits-1 downto 0); --might in the future have one bitstream we need to divide up
-                output      :   out std_logic_vector(n_bits-1 downto 0)
- 
+                output      :   out std_logic_vector(n_bits-1 downto 0) 
         );
+    end component;
         
-        signal in11s, in12s, in13s, in21s, in22s, in23s, in31s, in32s, in33s, outputs   :   std_logic_vector(n_bits-1 downto 0);
+    signal in11s, in12s, in13s, in21s, in22s, in23s, in31s, in32s, in33s, outputs   :   std_logic_vector(n_bits-1 downto 0);
 
 begin
-    mapping SobelFilter port map(in11s, in12s, in13s, in21s, in22s, in23s, in31s, in32s, in33s, outputs);
+    uut: SobelFilter port map(in11s=>in11, in12s=>in12, in13s=>in13, in21s=>in21, in22s=>in22, in23s=>in23, in31s=>in31, in32s=>in32, in33s=>in33, outputs=>output);
 
-    process
+    stimulus: process
     begin
     
     in11s <= (others=>'0');
