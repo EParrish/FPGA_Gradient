@@ -17,56 +17,130 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
+-- Testbench created online at:
+--   www.doulos.com/knowhow/perl/testbench_creation/
+-- Copyright Doulos Ltd
+-- SD, 03 November 2002
 
+-- Website where test bench is generated:
+-- https://www.doulos.com/knowhow/perl/testbench_creation/
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+use IEEE.Std_logic_1164.all;
+use IEEE.Numeric_Std.all;
 
 entity SobelFilter_tb is
---  Port ( );
-end SobelFilter_tb;
+end;
 
-architecture Behavioral of SobelFilter_tb
+architecture bench of SobelFilter_tb is
 
-    component SobelFilter
-        generic(n_bits  :   integer := 8);
-        
-        port(   clk, reset :   in STD_Logic; --Using clk, might need reset to reset values? not sure
-                in11, in12, in13, in21, in22, in23, in31, in32, in33  :   in std_logic_vector(n_bits-1 downto 0); --might in the future have one bitstream we need to divide up
-                output      :   out std_logic_vector(n_bits-1 downto 0) 
-        );
-    end component;
-        
-    signal in11s, in12s, in13s, in21s, in22s, in23s, in31s, in32s, in33s, outputs   :   std_logic_vector(n_bits-1 downto 0);
+  component SobelFilter
+      generic(n_bits  :   integer := 12);
+      port(clk, reset :   in STD_Logic;
+          in11, in12, in13, in21, in22, in23, in31, in32, in33  :   in std_logic_vector(n_bits-1 downto 0);
+          output      :   out std_logic_vector(n_bits+1 downto 0)
+      );
+  end component;
+
+  signal n_bits :   integer := 12;
+  signal clk, reset: STD_Logic;
+  signal in11, in12, in13, in21, in22, in23, in31, in32, in33: std_logic_vector(n_bits-1 downto 0);
+  signal output: std_logic_vector(n_bits+1 downto 0) ;
+
+  constant clock_period:    time    :=  14 ns;
+  constant reset_period:    time    :=  10 ns;
+  signal stop_the_clock: boolean;
 
 begin
-    uut: SobelFilter port map(in11s=>in11, in12s=>in12, in13s=>in13, in21s=>in21, in22s=>in22, in23s=>in23, in31s=>in31, in32s=>in32, in33s=>in33, outputs=>output);
 
-    stimulus: process
-    begin
+  -- Insert values for generic parameters !!
+  uut: SobelFilter generic map ( n_bits => n_bits )
+                      port map ( clk    => clk,
+                                 reset  => reset,
+                                 in11   => in11,
+                                 in12   => in12,
+                                 in13   => in13,
+                                 in21   => in21,
+                                 in22   => in22,
+                                 in23   => in23,
+                                 in31   => in31,
+                                 in32   => in32,
+                                 in33   => in33,
+                                 output => output );
+
+  stimulus: process
+  begin
+  
+    -- Put initialisation code here
     
-    in11s <= (others=>'0');
-    in12s <= (others=>'0');
-    in13s <= (others=>'0');
-    in21s <= (others=>'0');
-    in22s <= (others=>'0');
-    in23s <= (others=>'0');
-    in31s <= (others=>'0');
-    in32s <= (others=>'0');
-    in33s <= (others=>'0');
+    in11    <=  (others => '0');
+    in12    <=  (others => '0');
+    in13    <=  (others => '0');
+    in21    <=  (others => '0');
+    in22    <=  (others => '0');
+    in23    <=  (others => '0');
+    in31    <=  (others => '0');
+    in32    <=  (others => '0');
+    in33    <=  (others => '0');
 
-    wait for 1 ns;
-
-    end process;
+    wait for 9 ns;
     
+    in11    <=  (1 => '1', others => '0');
+    in12    <=  (1 => '1', 0 => '1', others => '0');
+    in13    <=  (3 => '1', 1 => '1', others => '0');
+    in21    <=  (1 => '1', 0 => '1', others => '0');
+    in22    <=  (3 => '1', others => '0');
+    in23    <=  (4 => '1', 3 => '1', others => '0');
+    in31    <=  (1 => '1', others => '0');
+    in32    <=  (2 => '1', 0 => '1', others => '0');
+    in33    <=  (4 => '1', others => '0');
+    
+    wait for 400 ns;
+    
+    in11    <=  (1 => '1', others => '0');
+    in12    <=  (others => '0');
+    in13    <=  (others => '0');
+    in21    <=  (others => '0');
+    in22    <=  (others => '0');
+    in23    <=  (others => '0');
+    in31    <=  (others => '0');
+    in32    <=  (others => '0');
+    in33    <=  (others => '0');    
+--    wait for 9 ns;
 
-end Behavioral;
+--    in11    <=  (others => '0');
+--    in12    <=  (others => '0');
+--    in13    <=  (others => '0');
+--    in21    <=  (others => '0');
+--    in22    <=  (others => '0');
+--    in23    <=  (others => '0');
+--    in31    <=  (others => '0');
+--    in32    <=  (others => '0');
+--    in33    <=  (others => '0');
+    
+    wait for 500 ns;
+    -- Put test bench stimulus code here
+
+    stop_the_clock <= true;
+    wait;
+  end process;
+
+  clocking: process
+  begin
+    while not stop_the_clock loop
+      clk <= '0', '1' after clock_period / 2;
+      wait for clock_period;
+    end loop;
+    wait;
+  end process;
+
+  resets: process
+  begin
+    while not stop_the_clock loop
+      reset <= '0', '1' after clock_period / 2;
+      wait for reset_period;
+    end loop;
+    wait;
+  end process;
+
+end;
